@@ -1,6 +1,6 @@
-Requests:
+#Requests:
 
-Allgemein:
+#Allgemein:
 - Angabe von Koordinaten von
     * Grundstückshöhen
     * Grundstücksgrenzen
@@ -21,7 +21,7 @@ Allgemein:
         + Farbwahl ob Steigung / Gefälle hin zum Haus
         
 
-Technisches:
+#Technisches:
 - Koordinaten
     * Koordinaten sind 3-D
 - Mesh
@@ -34,7 +34,7 @@ Technisches:
         + Komplett eben: rgb-farbe (0,200,255)
 
 
-Koordinaten:
+#Koordinaten:
 
     h_E = 515.10
 
