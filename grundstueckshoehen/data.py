@@ -17,6 +17,13 @@ HOUSE_POINTS = {
     "D_H": np.array([4.3, 26.52, 0.0]),
 }
 
+SURROUNDING_POINTS = {
+    "A_S": np.array([3.3, 9.51, -0.16]),
+    "B_S": np.array([16.2, 9.51, -0.16]),
+    "C_S": np.array([16.2, 27.52, -0.05]),
+    "D_S": np.array([3.3, 27.52, -0.01]),
+}
+
 HOUSE_EDGE_POINTS_PER_EDGE = 5
 
 def _generate_edge_points_xy(edge_points: np.ndarray, points_per_edge: int = HOUSE_EDGE_POINTS_PER_EDGE, distance: float = 1.0, height: Optional[float] = None, prefix: str = "edge") -> dict:
@@ -70,8 +77,18 @@ def _generate_edge_points_xy(edge_points: np.ndarray, points_per_edge: int = HOU
 
 def _generate_edge_points(edge_points, points_per_edge: int = HOUSE_EDGE_POINTS_PER_EDGE, distance=1.0, height: Optional[float] = -0.05, prefix: str = "edge") -> dict:
     if isinstance(edge_points, dict):
+        original_points = dict(edge_points)
         edge_points = np.stack(list(edge_points.values()))
-    return _generate_edge_points_xy(edge_points, points_per_edge=points_per_edge, distance=distance, height=height, prefix=prefix)
+    else:
+        edge_points = np.asarray(edge_points)
+        original_points = {
+            f"{prefix}_orig_{idx + 1}": np.asarray(pt, dtype=float)
+            for idx, pt in enumerate(edge_points)
+        }
+
+    generated_points = _generate_edge_points_xy(edge_points, points_per_edge=points_per_edge, distance=distance, height=height, prefix=prefix)
+    original_points.update(generated_points)
+    return original_points
 
 
 def _generate_house_edge_points(points_per_edge: int = HOUSE_EDGE_POINTS_PER_EDGE, distance: float = 1.0, height: float = -0.05) -> dict:
@@ -83,8 +100,8 @@ def _generate_house_edge_points_on_edges(points_per_edge: int = HOUSE_EDGE_POINT
 
 HOUSE_EDGE_POINTS = _generate_house_edge_points_on_edges(points_per_edge=HOUSE_EDGE_POINTS_PER_EDGE)
 
-ADDITIONAL_POINTS = _generate_house_edge_points(points_per_edge=5)
-
+# ADDITIONAL_POINTS = _generate_house_edge_points(points_per_edge=5)
+ADDITIONAL_POINTS = _generate_edge_points(SURROUNDING_POINTS, points_per_edge=HOUSE_EDGE_POINTS_PER_EDGE, distance=0, height=None, prefix="surrounding_edge")
 
 def get_house_centroid() -> np.ndarray:
     house = np.stack(list(HOUSE_POINTS.values()))
