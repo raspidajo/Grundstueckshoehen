@@ -1,8 +1,16 @@
+import argparse
+import sys
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from scipy.spatial import Delaunay
 from typing import Optional
+
+# Ensure the repository root is on sys.path when running this script directly.
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 # Optional Plotly for interactive HTML output
 try:
@@ -205,5 +213,25 @@ def plot_mesh_interactive(points: np.ndarray, triangles: np.ndarray, extra_point
 
 
 if __name__ == "__main__":
-    # default non-blocking example: save image
-    main(show=False)
+    parser = argparse.ArgumentParser(description="Sandbox mesh plotter for Grundstueckshoehen")
+    parser.add_argument("--show", action="store_true", help="Show the Matplotlib plot interactively instead of saving a PNG")
+    parser.add_argument("--no-show", dest="show", action="store_false", help="Do not show the plot; instead save PNG/HTML output")
+    parser.set_defaults(show=False)
+    parser.add_argument("--use-data", dest="use_data", action="store_true", help="Use coordinates from grundstueckshoehen.data")
+    parser.add_argument("--no-use-data", dest="use_data", action="store_false", help="Use the example built-in points instead of package data")
+    parser.set_defaults(use_data=True)
+    parser.add_argument("--triangulate-all", dest="triangulate_all", action="store_true", help="Include house and additional points in the mesh triangulation")
+    parser.add_argument("--no-triangulate-all", dest="triangulate_all", action="store_false", help="Triangulate only the terrain points")
+    parser.set_defaults(triangulate_all=True)
+    parser.add_argument("--z-scale", type=float, default=1.0, help="Vertical exaggeration factor for Z axis")
+    parser.add_argument("--aspect-z", type=float, default=None, help="Plotly Z aspect ratio scaling")
+    parser.add_argument("--z-range-pad", type=float, default=0.2, help="Plotly Z-axis padding as fraction of the data range")
+    args = parser.parse_args()
+    main(
+        show=args.show,
+        use_data=args.use_data,
+        triangulate_all=args.triangulate_all,
+        z_scale=args.z_scale,
+        aspect_z=args.aspect_z,
+        z_range_pad=args.z_range_pad,
+    )
