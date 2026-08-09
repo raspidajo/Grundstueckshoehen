@@ -15,6 +15,9 @@ except Exception:
     HAS_PLOTLY = False
 
 
+from grundstueckshoehen.data import get_terrain_points
+
+
 def create_mesh_triangles(points: np.ndarray):
     """Return triangle vertex indices from Delaunay triangulation of XY."""
     xy = points[:, :2]
@@ -57,13 +60,26 @@ def example_points():
     return pts
 
 
-def main(show: bool = True):
-    pts = example_points()
+def main(show: bool = True, use_data: bool = True):
+    """Run sandbox demo. By default uses coordinates from `grundstueckshoehen.data`.
+
+    Set `use_data=False` to use the internal example grid instead.
+    """
+    if use_data:
+        pts = get_terrain_points()
+    else:
+        pts = example_points()
+
     tris = create_mesh_triangles(pts)
     save = "sandbox_mesh_example.png" if not show else None
     save_html = "sandbox_mesh_example.html" if not show else None
     plot_mesh(pts, tris, show=show, save_path=save)
-    plot_mesh_interactive(pts, tris, open_html=show, save_path=save_html)
+
+    if HAS_PLOTLY:
+        plot_mesh_interactive(pts, tris, open_html=show, save_path=save_html)
+    else:
+        if save_html is not None:
+            print("Plotly not installed; skipping interactive HTML output.")
 
     if save:
         print(f"Saved example mesh to {save}")
