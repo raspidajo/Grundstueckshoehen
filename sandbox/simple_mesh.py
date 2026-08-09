@@ -23,7 +23,7 @@ except Exception:
     HAS_PLOTLY = False
 
 
-from grundstueckshoehen.data import get_terrain_points, HOUSE_POINTS, HOUSE_EDGE_POINTS, ADDITIONAL_POINTS, get_house_loop
+from grundstueckshoehen.data import get_terrain_points, HOUSE_POINTS, HOUSE_EDGE_POINTS, ADDITIONAL_POINTS, get_house_loop, get_custom_points_array
 
 
 def create_mesh_triangles(points: np.ndarray):
@@ -103,6 +103,7 @@ def main(show: bool = True, use_data: bool = True, triangulate_all: bool = True,
 
         # prepare extra groups for highlighted plotting (house, house edge, additional)
         additional_pts = np.vstack(list(ADDITIONAL_POINTS.values())) if len(ADDITIONAL_POINTS) else np.empty((0, 3))
+        custom_pts = get_custom_points_array()
         extra = {}
         if house_pts.size:
             extra['house'] = house_pts
@@ -110,6 +111,8 @@ def main(show: bool = True, use_data: bool = True, triangulate_all: bool = True,
             extra['house_edge'] = house_edge_pts
         if additional_pts.size:
             extra['additional'] = additional_pts
+        if custom_pts.size:
+            extra['custom'] = custom_pts
     else:
         pts = example_points()
         extra = None

@@ -103,12 +103,49 @@ HOUSE_EDGE_POINTS = _generate_house_edge_points_on_edges(points_per_edge=HOUSE_E
 # ADDITIONAL_POINTS = _generate_house_edge_points(points_per_edge=5)
 ADDITIONAL_POINTS = _generate_edge_points(SURROUNDING_POINTS, points_per_edge=HOUSE_EDGE_POINTS_PER_EDGE, distance=0, height=None, prefix="surrounding_edge")
 
+# user-supplied custom points (dict of name->(x,y,z) arrays)
+# define default custom points here (these will be included in the mesh)
+CUSTOM_POINTS = {
+    "p1": np.array([17.0, 30.0, 515.30 - H_E]),
+    "p2": np.array([3.0, 30.0, 515.30 - H_E]),
+}
+
+
+def register_custom_points(points: dict, *, replace: bool = False) -> None:
+    """Register custom named points to be included in terrain.
+
+    - `points` should be a dict mapping name->(x,y,z)-like sequences or numpy arrays.
+    - If `replace` is True, existing custom points are replaced; otherwise they are merged.
+    """
+    global CUSTOM_POINTS
+    if replace:
+        CUSTOM_POINTS = {}
+    for k, v in points.items():
+        CUSTOM_POINTS[k] = np.asarray(v, dtype=float)
+
+
+def add_custom_point(name: str, point) -> None:
+    """Add or replace a single custom point by name."""
+    CUSTOM_POINTS[name] = np.asarray(point, dtype=float)
+
+
+def clear_custom_points() -> None:
+    """Remove all registered custom points."""
+    CUSTOM_POINTS.clear()
+
+
+def get_custom_points_array() -> np.ndarray:
+    """Return Nx3 array of registered custom points (empty array if none)."""
+    if not CUSTOM_POINTS:
+        return np.empty((0, 3))
+    return np.vstack(list(CUSTOM_POINTS.values()))
+
 def get_house_centroid() -> np.ndarray:
     house = np.stack(list(HOUSE_POINTS.values()))
     return np.mean(house[:, :2], axis=0)
 
 def get_terrain_points() -> np.ndarray:
-    terrain_points = [*GROUND_POINTS.values(), *ADDITIONAL_POINTS.values()]
+    terrain_points = [*GROUND_POINTS.values(), *ADDITIONAL_POINTS.values(), *CUSTOM_POINTS.values()]
     if len(terrain_points) == 0:
         raise ValueError("At least one terrain point is required.")
     return np.vstack(terrain_points)
