@@ -33,3 +33,11 @@ python -m grundstueckshoehen --output terrain_mesh.png --show
 - Weitere `ADDITIONAL_POINTS` in `grundstueckshoehen/data.py` einfügen
 - Eigene Mesh-Filter oder Triangulationslogik ergänzen
 - Farbskala oder Ausgabedateiformat anpassen
+
+## Plotly / Interaktive Ansicht
+
+- Für interaktive 3D-Ansichten installiert `plotly` (ist in `requirements.txt`):
+   ```bash
+   python -m pip install plotly
+   ```
+- Wenn Pylance in VS Code `plotly` als fehlend markiert, stelle sicher, dass VS Code den gleichen Python-Interpreter verwendet wie die Installation (unten links in der Statusleiste). Wähle das Projekt-`venv` aus, wenn vorhanden.

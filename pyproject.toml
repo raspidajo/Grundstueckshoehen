@@ -10,6 +10,7 @@ authors = [ { name = "Johannes" } ]
 matplotlib = "^3.8"
 numpy = "^1.27"
 scipy = "^1.12"
+plotly = "^5.0"
 
 [project.scripts]
 groundplot = "grundstueckshoehen.__main__:main"

@@ -7,7 +7,7 @@ from .data import (
     get_terrain_points,
 )
 from .mesh import create_mesh, compute_triangle_slopes
-from .plot import plot_terrain
+from .plot import plot_terrain, plot_terrain_interactive
 
 __all__ = [
     "H_E",
@@ -19,4 +19,5 @@ __all__ = [
     "create_mesh",
     "compute_triangle_slopes",
     "plot_terrain",
+    "plot_terrain_interactive",
 ]

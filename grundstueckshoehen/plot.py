@@ -2,6 +2,16 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+# Plotly is an optional dependency used for interactive HTML output.
+# Import it lazily so the package still works without Plotly installed.
+try:
+    import plotly.graph_objects as go
+    import plotly.offline as pyo
+    HAS_PLOTLY = True
+except Exception:
+    go = None
+    pyo = None
+    HAS_PLOTLY = False
 
 from .data import get_ground_loop, get_house_loop, ADDITIONAL_POINTS
 from .mesh import MAX_SLOPE_PERCENT
@@ -67,3 +77,80 @@ def plot_terrain(points, triangles, slopes, save_path=None):
         fig.savefig(save_path, dpi=200, bbox_inches="tight")
 
     return fig, ax
+
+
+def plot_terrain_interactive(points, triangles, slopes, save_path=None, open_html=False):
+    if not HAS_PLOTLY:
+        raise ImportError(
+            "Plotly is not installed. Install it with 'pip install plotly' or 'pip install -r requirements.txt', and ensure VS Code uses the same Python interpreter."
+        )
+
+    x, y, z = points.T
+    i, j, k = triangles.T
+
+    cmap = [[0.0, "green"], [0.5, "blue"], [1.0, "red"]]
+    mesh = go.Mesh3d(
+        x=x,
+        y=y,
+        z=z,
+        i=i,
+        j=j,
+        k=k,
+        intensity=slopes,
+        colorscale=cmap,
+        intensitymode="cell",
+        flatshading=True,
+        showscale=True,
+        colorbar=dict(title="Steigung (%)", tickvals=[-MAX_SLOPE_PERCENT, 0, MAX_SLOPE_PERCENT], ticktext=[f"-{MAX_SLOPE_PERCENT}%", "0%", f"+{MAX_SLOPE_PERCENT}%"]),
+    )
+
+    boundary = go.Scatter3d(
+        x=get_ground_loop()[:, 0],
+        y=get_ground_loop()[:, 1],
+        z=get_ground_loop()[:, 2],
+        mode="lines",
+        line=dict(color="black", width=5),
+        name="Grundstücksgrenze",
+    )
+
+    house = go.Scatter3d(
+        x=get_house_loop()[:, 0],
+        y=get_house_loop()[:, 1],
+        z=get_house_loop()[:, 2],
+        mode="lines",
+        line=dict(color="orange", width=5),
+        name="Hausumriss",
+    )
+
+    data = [mesh, boundary, house]
+    for label, point in ADDITIONAL_POINTS.items():
+        data.append(
+            go.Scatter3d(
+                x=[point[0]],
+                y=[point[1]],
+                z=[point[2]],
+                mode="markers+text",
+                marker=dict(size=5, color="magenta"),
+                text=[label],
+                textposition="top center",
+                name=label,
+            )
+        )
+
+    fig = go.Figure(data=data)
+    fig.update_layout(
+        scene=dict(
+            xaxis_title="X (m)",
+            yaxis_title="Y (m)",
+            zaxis_title="Z (m) relative to h_E",
+            aspectmode="data",
+        ),
+        title="Interaktives Gelände-Mesh",
+    )
+
+    if save_path:
+        pyo.plot(fig, filename=save_path, auto_open=open_html)
+    elif open_html:
+        pyo.plot(fig, auto_open=True)
+
+    return fig
