@@ -23,7 +23,7 @@ except Exception:
     HAS_PLOTLY = False
 
 
-from grundstueckshoehen.data import get_terrain_points, HOUSE_POINTS, ADDITIONAL_POINTS, get_house_loop
+from grundstueckshoehen.data import get_terrain_points, HOUSE_POINTS, HOUSE_EDGE_POINTS, ADDITIONAL_POINTS, get_house_loop
 
 
 def create_mesh_triangles(points: np.ndarray):
@@ -92,17 +92,22 @@ def main(show: bool = True, use_data: bool = True, triangulate_all: bool = True,
     if use_data:
         terrain_pts = get_terrain_points()
         house_pts = np.stack(list(HOUSE_POINTS.values())) if len(HOUSE_POINTS) else np.empty((0, 3))
-        # build full point set for triangulation (include house points)
-        if house_pts.size:
-            pts = np.vstack([terrain_pts, house_pts])
-        else:
-            pts = terrain_pts
+        house_edge_pts = np.vstack(list(HOUSE_EDGE_POINTS.values())) if len(HOUSE_EDGE_POINTS) else np.empty((0, 3))
 
-        # prepare extra groups for highlighted plotting (house, additional)
+        # build full point set for triangulation (include house points and house edge points)
+        pts = terrain_pts
+        if house_pts.size:
+            pts = np.vstack([pts, house_pts])
+        if house_edge_pts.size:
+            pts = np.vstack([pts, house_edge_pts])
+
+        # prepare extra groups for highlighted plotting (house, house edge, additional)
         additional_pts = np.vstack(list(ADDITIONAL_POINTS.values())) if len(ADDITIONAL_POINTS) else np.empty((0, 3))
         extra = {}
         if house_pts.size:
             extra['house'] = house_pts
+        if house_edge_pts.size:
+            extra['house_edge'] = house_edge_pts
         if additional_pts.size:
             extra['additional'] = additional_pts
     else:
