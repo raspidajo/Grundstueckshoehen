@@ -4,6 +4,16 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from scipy.spatial import Delaunay
 from typing import Optional
 
+# Optional Plotly for interactive HTML output
+try:
+    import plotly.graph_objects as go
+    import plotly.offline as pyo
+    HAS_PLOTLY = True
+except Exception:
+    go = None
+    pyo = None
+    HAS_PLOTLY = False
+
 
 def create_mesh_triangles(points: np.ndarray):
     """Return triangle vertex indices from Delaunay triangulation of XY."""
@@ -51,9 +61,50 @@ def main(show: bool = True):
     pts = example_points()
     tris = create_mesh_triangles(pts)
     save = "sandbox_mesh_example.png" if not show else None
+    save_html = "sandbox_mesh_example.html" if not show else None
     plot_mesh(pts, tris, show=show, save_path=save)
+    plot_mesh_interactive(pts, tris, open_html=show, save_path=save_html)
+
     if save:
         print(f"Saved example mesh to {save}")
+
+
+def plot_mesh_interactive(points: np.ndarray, triangles: np.ndarray, open_html: bool = False, save_path: Optional[str] = None):
+    """Create an interactive HTML Plotly mesh from Nx3 points and triangle indices.
+
+    Raises ImportError if Plotly is not available.
+    """
+    if not HAS_PLOTLY:
+        raise ImportError("Plotly is not installed. Install with 'pip install plotly'.")
+
+    x, y, z = points.T
+    i, j, k = triangles.T
+    # Use z as intensity (height) for simple coloring
+    mesh = go.Mesh3d(
+        x=x,
+        y=y,
+        z=z,
+        i=i,
+        j=j,
+        k=k,
+        intensity=z,
+        colorscale=[[0, 'green'], [0.5, 'blue'], [1, 'red']],
+        intensitymode='vertex',
+        flatshading=True,
+        showscale=True,
+    )
+
+    pts_scatter = go.Scatter3d(x=x, y=y, z=z, mode='markers', marker=dict(size=3, color='red'))
+
+    fig = go.Figure(data=[mesh, pts_scatter])
+    fig.update_layout(title='Interactive sandbox mesh', scene=dict(aspectmode='data'))
+
+    if save_path:
+        pyo.plot(fig, filename=save_path, auto_open=open_html)
+    elif open_html:
+        pyo.plot(fig, auto_open=True)
+
+    return fig
 
 
 if __name__ == "__main__":
