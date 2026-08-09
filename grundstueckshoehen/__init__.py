@@ -7,7 +7,8 @@ from .data import (
     get_terrain_points,
 )
 from .mesh import create_mesh, compute_triangle_slopes
-from .plot import plot_terrain, plot_terrain_interactive
+from .mesh import create_mesh, compute_triangle_slopes, create_mesh_triangles
+from .plot import plot_terrain, plot_terrain_interactive, plot_mesh
 
 __all__ = [
     "H_E",
@@ -17,7 +18,9 @@ __all__ = [
     "get_house_centroid",
     "get_terrain_points",
     "create_mesh",
+    "create_mesh_triangles",
     "compute_triangle_slopes",
     "plot_terrain",
     "plot_terrain_interactive",
+    "plot_mesh",
 ]

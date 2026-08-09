@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from scipy.spatial import Delaunay
+from typing import Optional
 
 
 def create_mesh_triangles(points: np.ndarray):
@@ -11,7 +12,7 @@ def create_mesh_triangles(points: np.ndarray):
     return tri.simplices
 
 
-def plot_mesh(points: np.ndarray, triangles: np.ndarray, show: bool = True, save_path: str | None = None):
+def plot_mesh(points: np.ndarray, triangles: np.ndarray, show: bool = True, save_path: Optional[str] = None):
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection="3d")
 

@@ -14,6 +14,11 @@ def create_mesh(points: np.ndarray) -> np.ndarray:
     return delaunay.simplices
 
 
+def create_mesh_triangles(points: np.ndarray) -> np.ndarray:
+    """Simple alias matching sandbox naming: return triangle indices from Nx3 points."""
+    return create_mesh(points)
+
+
 def compute_triangle_slopes(points: np.ndarray, triangles: np.ndarray) -> np.ndarray:
     centroid_xy = np.mean(points[triangles, :2], axis=1)
     centroid_z = np.mean(points[triangles, 2], axis=1)

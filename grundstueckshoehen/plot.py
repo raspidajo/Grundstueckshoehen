@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib import cm
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
@@ -15,6 +16,7 @@ except Exception:
 
 from .data import get_ground_loop, get_house_loop, ADDITIONAL_POINTS
 from .mesh import MAX_SLOPE_PERCENT
+from typing import Optional
 
 
 def get_slope_colormap():
@@ -154,3 +156,32 @@ def plot_terrain_interactive(points, triangles, slopes, save_path=None, open_htm
         pyo.plot(fig, auto_open=True)
 
     return fig
+
+
+def plot_mesh(points: np.ndarray, triangles: np.ndarray, show: bool = True, save_path: Optional[str] = None):
+    """Simple Matplotlib mesh plot for Nx3 `points` and triangle indices `triangles`.
+
+    Behaves like the sandbox `simple_mesh.plot_mesh` for consistency.
+    """
+    mesh_triangles = points[triangles]
+    fig = plt.figure(figsize=(8, 6))
+    ax = fig.add_subplot(111, projection="3d")
+
+    poly = Poly3DCollection(mesh_triangles, facecolors="lightgrey", edgecolors="k", linewidths=0.3, alpha=0.9)
+    ax.add_collection3d(poly)
+    ax.scatter(points[:, 0], points[:, 1], points[:, 2], color="red", s=20)
+
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+    ax.auto_scale_xyz(points[:, 0], points[:, 1], points[:, 2])
+
+    if save_path:
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
+
+    if show:
+        plt.show()
+    else:
+        plt.close(fig)
+
+    return fig, ax
